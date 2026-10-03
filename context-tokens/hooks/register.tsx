@@ -27,7 +27,7 @@ export const register: Register = on => {
     return result
   })
 
-  on('ui.render', { component: 'SessionMode' }, async ($, e, next) => {
+  on('ui.render', { component: 'SessionMode', surface: 'desktop' }, async ($, e, next) => {
     const tokens = await read($, usedTokens)
     if (tokens === null) {
       return next(e)

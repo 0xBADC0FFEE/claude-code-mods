@@ -1,7 +1,8 @@
 # context-tokens
 
 Shows how many tokens the context holds, beside the prompt footer of the
-Claude Code desktop app and terminal: `88.1k`.
+Claude Code desktop app: `88.1k`. The terminal is left to a status line,
+which already carries the figure.
 
 | tokens | color |
 | --- | --- |
