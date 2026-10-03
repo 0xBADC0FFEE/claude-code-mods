@@ -1,7 +1,7 @@
 {
   "name": "context-tokens",
-  "version": "0.1.0",
-  "description": "Shows the context tokens in use beside the prompt footer, green under 100k, yellow to 150k, red beyond. Needs function hooks (early access).",
+  "version": "0.2.0",
+  "description": "Shows the context tokens in use beside the prompt footer of the desktop app, green under 100k, yellow to 150k, red beyond. Needs function hooks (early access).",
   "author": {
     "name": "0xBADC0FFEE"
   },

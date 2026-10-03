@@ -7,7 +7,7 @@ releases.
 
 | mod | what it does |
 | --- | --- |
-| [context-tokens](context-tokens/README.md) | the context tokens in use, beside the prompt footer, colored by size |
+| [context-tokens](context-tokens/README.md) | the context tokens in use, beside the desktop app's prompt footer, colored by size |
 
 ## Install
 
