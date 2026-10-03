@@ -1,0 +1,36 @@
+name: Bug report
+description: A mod misbehaves or fails to load
+labels: [bug]
+body:
+  - type: dropdown
+    id: mod
+    attributes:
+      label: Mod
+      options:
+        - context-tokens
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Claude Code version
+      description: Output of `claude --version`
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Surface
+      options:
+        - Desktop app (Code tab)
+        - Terminal
+        - VS Code
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what you expected
+      description: Include any dim `<plugin>:` line the transcript shows, or `claude --debug` output.
+    validations:
+      required: true

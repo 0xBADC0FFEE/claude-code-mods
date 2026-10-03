@@ -1,0 +1,5 @@
+node_modules/
+.claude/types/
+.claude/worktrees/
+.claude/settings.local.json
+.DS_Store

@@ -1,0 +1,14 @@
+{
+  "name": "claude-code-mods",
+  "owner": {
+    "name": "0xBADC0FFEE"
+  },
+  "description": "Mods for Claude Code built on function hooks.",
+  "plugins": [
+    {
+      "name": "context-tokens",
+      "source": "./context-tokens",
+      "description": "Context tokens in use beside the prompt footer, colored by size."
+    }
+  ]
+}

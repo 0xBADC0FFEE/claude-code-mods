@@ -1,0 +1,13 @@
+{
+  "name": "context-tokens",
+  "version": "0.1.0",
+  "description": "Shows the context tokens in use beside the prompt footer, green under 100k, yellow to 150k, red beyond. Needs function hooks (early access).",
+  "author": {
+    "name": "0xBADC0FFEE"
+  },
+  "homepage": "https://github.com/0xBADC0FFEE/claude-code-mods/tree/main/context-tokens",
+  "repository": "https://github.com/0xBADC0FFEE/claude-code-mods",
+  "license": "MIT",
+  "keywords": ["context", "tokens", "footer", "function-hooks", "mod"],
+  "types": "./types/index.d.ts"
+}
