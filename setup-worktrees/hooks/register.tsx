@@ -77,7 +77,8 @@ export const register: Register = on => {
               <Button
                 key={`variable-${name}`}
                 variant="secondary"
-                hover={{ scope: `variable-${name}` }}
+                // The desktop joins a hover group only through a hover that restyles something.
+                hover={{ scope: `variable-${name}`, color: 'text' }}
                 onPress={press => copy(`$${name}`, press.surface)}
               >
                 <Text mono>${name}</Text>
