@@ -10,6 +10,7 @@ const PANE_TITLE = 'Setup worktrees'
 const SETTINGS_FILE = '.claude/settings.local.json'
 const BUNDLED_HOOK = 'scripts/hook.sh'
 const SCRIPT_ROWS = 6
+const TOOLTIP_OFFSET = 2
 
 const root = atom({ plugin: 'setup-worktrees', key: 'root' } as const, '')
 const draft = atom({ plugin: 'setup-worktrees', key: 'draft' } as const, EMPTY_SCRIPTS)
@@ -25,9 +26,9 @@ const SCRIPT_FIELDS: readonly ScriptField[] = [
 type ScriptVariable = { name: string; meaning: string }
 
 const SCRIPT_VARIABLES: readonly ScriptVariable[] = [
-  { name: 'WORKTREE_ROOT_PATH', meaning: 'Main checkout of the repository' },
-  { name: 'WORKTREE_PATH', meaning: 'This worktree, also the working directory' },
-  { name: 'WORKTREE_NAME', meaning: 'Worktree name, the folder under .worktrees/' },
+  { name: 'WORKTREE_ROOT_PATH', meaning: 'Main checkout of the repository. Click to copy' },
+  { name: 'WORKTREE_PATH', meaning: 'This worktree, the working directory. Click to copy' },
+  { name: 'WORKTREE_NAME', meaning: 'Folder name under .worktrees/. Click to copy' },
 ]
 
 export const register: Register = on => {
@@ -71,33 +72,30 @@ export const register: Register = on => {
 
     return (
       <Box flexDirection="column" alignItems="stretch" gap="lg" padding="md">
-        <Box flexDirection="column" gap="xs">
-          <Box flexDirection="row" flexWrap="wrap" columnGap="md">
-            {SCRIPT_VARIABLES.map(({ name }) => (
+        <Box flexDirection="row" flexWrap="wrap" gap="xs">
+          {SCRIPT_VARIABLES.map(({ name, meaning }) => (
+            <Box key={`chip-${name}`} position="relative">
               <Button
                 key={`variable-${name}`}
-                plain
-                hover={{ scope: `variable-${name}`, underline: true }}
+                variant="secondary"
                 onPress={press => copy(`$${name}`, press.surface)}
               >
-                <Text size="caption" mono>${name}</Text>
+                <Text mono>${name}</Text>
               </Button>
-            ))}
-          </Box>
-          <Box position="relative" height={1}>
-            {SCRIPT_VARIABLES.map(({ name, meaning }) => (
               <Box
-                key={`meaning-${name}`}
                 position="absolute"
-                top={0}
+                top={TOOLTIP_OFFSET}
                 left={0}
                 display="none"
-                hover={{ scope: `variable-${name}`, display: 'flex' }}
+                hover={{ display: 'flex' }}
+                paddingX="sm"
+                paddingY="xs"
+                backgroundColor="text"
               >
-                <Text size="caption" dimColor>{meaning}. Click to copy.</Text>
+                <Text size="caption" color="inverseText" wrap="truncate-end">{meaning}</Text>
               </Box>
-            ))}
-          </Box>
+            </Box>
+          ))}
         </Box>
         {SCRIPT_FIELDS.map(({ kind, title, placeholder }) => (
           <Box key={kind} flexDirection="column" alignItems="stretch" gap="xs">
