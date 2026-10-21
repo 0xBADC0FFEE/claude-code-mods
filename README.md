@@ -8,6 +8,7 @@ releases.
 | mod | what it does |
 | --- | --- |
 | [context-tokens](context-tokens/README.md) | the context tokens in use, beside the desktop app's prompt footer, colored by size |
+| [setup-worktrees](setup-worktrees/README.md) | session worktrees in `.worktrees/`, with your own setup/teardown scripts kept out of git |
 
 ## Install
 

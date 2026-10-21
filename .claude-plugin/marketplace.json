@@ -9,6 +9,11 @@
       "name": "context-tokens",
       "source": "./context-tokens",
       "description": "Context tokens in use beside the prompt footer, colored by size."
+    },
+    {
+      "name": "setup-worktrees",
+      "source": "./setup-worktrees",
+      "description": "Session worktrees in .worktrees/ with your own background setup/teardown scripts."
     }
   ]
 }

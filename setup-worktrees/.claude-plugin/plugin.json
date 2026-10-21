@@ -1,0 +1,13 @@
+{
+  "name": "setup-worktrees",
+  "version": "0.1.0",
+  "description": "Puts session worktrees in <repo>/.worktrees/ and runs your own setup/teardown scripts there, kept in .claude/settings.local.json. Needs function hooks (early access).",
+  "author": {
+    "name": "0xBADC0FFEE"
+  },
+  "homepage": "https://github.com/0xBADC0FFEE/claude-code-mods/tree/main/setup-worktrees",
+  "repository": "https://github.com/0xBADC0FFEE/claude-code-mods",
+  "license": "MIT",
+  "keywords": ["worktree", "git", "setup", "teardown", "function-hooks", "mod"],
+  "types": "./types/index.d.ts"
+}
