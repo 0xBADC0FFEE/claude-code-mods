@@ -1,5 +1,5 @@
 import { atom, read, update } from 'claude-code'
-import type { EngineInterface, Register } from 'claude-code'
+import type { EngineInterface, Register, UiPressArgument } from 'claude-code'
 
 import type { ScriptKind, WorktreeScripts } from '../types'
 import { EMPTY_SCRIPTS, INSTALLED_HOOK_PATH, readWorktreeScripts, withWorktreeHooks } from './settings'
@@ -18,8 +18,16 @@ const error = atom({ plugin: 'setup-worktrees', key: 'error' } as const, '')
 type ScriptField = { kind: ScriptKind; title: string; placeholder: string }
 
 const SCRIPT_FIELDS: readonly ScriptField[] = [
-  { kind: 'setup', title: 'Setup — runs in each new worktree', placeholder: 'npm ci' },
+  { kind: 'setup', title: 'Setup — runs in each new worktree', placeholder: 'cp "$WORKTREE_ROOT_PATH/.env" .\nnpm ci' },
   { kind: 'teardown', title: 'Teardown — runs before a worktree is removed', placeholder: 'docker compose down' },
+]
+
+type ScriptVariable = { name: string; meaning: string }
+
+const SCRIPT_VARIABLES: readonly ScriptVariable[] = [
+  { name: 'WORKTREE_ROOT_PATH', meaning: 'Main checkout of the repository' },
+  { name: 'WORKTREE_PATH', meaning: 'This worktree, also the working directory' },
+  { name: 'WORKTREE_NAME', meaning: 'Worktree name, the folder under .worktrees/' },
 ]
 
 export const register: Register = on => {
@@ -58,8 +66,39 @@ export const register: Register = on => {
     const save = () =>
       void saveScripts($, repo, scripts).catch((failure: unknown) => update($, error, () => String(failure)))
 
+    const copy = (text: string, surface: UiPressArgument['surface']) =>
+      void $.ui.copy({ text, surface }).then(({ isCopied }) => isCopied && $.ui.toast(`Copied ${text}`))
+
     return (
       <Box flexDirection="column" alignItems="stretch" gap="lg" padding="md">
+        <Box flexDirection="column" gap="xs">
+          <Box flexDirection="row" flexWrap="wrap" columnGap="md">
+            {SCRIPT_VARIABLES.map(({ name }) => (
+              <Button
+                key={`variable-${name}`}
+                plain
+                hover={{ scope: `variable-${name}`, underline: true }}
+                onPress={press => copy(`$${name}`, press.surface)}
+              >
+                <Text size="caption" mono>${name}</Text>
+              </Button>
+            ))}
+          </Box>
+          <Box position="relative" height={1}>
+            {SCRIPT_VARIABLES.map(({ name, meaning }) => (
+              <Box
+                key={`meaning-${name}`}
+                position="absolute"
+                top={0}
+                left={0}
+                display="none"
+                hover={{ scope: `variable-${name}`, display: 'flex' }}
+              >
+                <Text size="caption" dimColor>{meaning}. Click to copy.</Text>
+              </Box>
+            ))}
+          </Box>
+        </Box>
         {SCRIPT_FIELDS.map(({ kind, title, placeholder }) => (
           <Box key={kind} flexDirection="column" alignItems="stretch" gap="xs">
             <Text size="footnote" weight="medium">{title}</Text>

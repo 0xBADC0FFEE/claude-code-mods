@@ -16,7 +16,7 @@ const PANE = {
   },
 } as const
 
-test('edits a script and saves it with the one Save button', async ($, on) => {
+test('copies a variable, edits a script and saves it', async ($, on) => {
   const written: Record<string, string> = {}
   on('session.start', (_, e) => ({ cwd: e.cwd }))
   on('command.register', () => ({ value: { command: 'setup-worktrees' } }))
@@ -26,6 +26,12 @@ test('edits a script and saves it with the one Save button', async ($, on) => {
   on('process.run', () => ({ value: { exitCode: 0, stdout: `${REPO}/.git\n`, stderr: '', isStdoutTruncated: false, isStderrTruncated: false } }))
   on('fs.exists', (_, e) => ({ value: e.path in written }))
   on('fs.read', (_, e) => ({ value: written[e.path] ?? '#!/usr/bin/env bash' }))
+  const copied: string[] = []
+  on('ui.copy', (_, e) => {
+    copied.push(e.text)
+    return { value: { isCopied: true } }
+  })
+  on('ui.toast', () => ({ value: undefined }))
   on('fs.write', (_, e) => {
     written[e.path] = e.text
     return { value: undefined }
@@ -38,7 +44,8 @@ test('edits a script and saves it with the one Save button', async ($, on) => {
     await $.command.run({ command: 'setup-worktrees', args: '', origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 80 } })
     const ui = await $.ui.mount({ ...PANE, surface })
 
-    expect(await ui.findAll({ type: 'Button' })).toHaveLength(1)
+    await ui.press({ key: 'variable-WORKTREE_ROOT_PATH' })
+    expect(copied.at(-1)).toBe('$WORKTREE_ROOT_PATH')
     expect(await ui.find({ type: 'Text', text: 'Not set up' })).toBeDefined()
     expect((await ui.find({ key: 'save' }))?.props).toMatchObject({ dimColor: true })
 

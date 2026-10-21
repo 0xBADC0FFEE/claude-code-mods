@@ -31,16 +31,17 @@ create() {
   exclude_worktrees_dir "$root"
   git -C "$root" worktree add -q -b "$BRANCH_PREFIX$name" "$worktree" HEAD >&2
   if [[ -n $setup ]]; then
-    run_detached "$worktree" "$(log_file "$root" "$name" setup)" bash -c "$setup"
+    run_detached "$worktree" "$(log_file "$root" "$name" setup)" run_script "$root" "$worktree" "$setup"
   fi
   echo "$worktree"
 }
 
 remove() {
-  local worktree=$1 teardown=$2 root branch
+  local worktree teardown=$2 root branch
+  worktree=$(cd "$1" && pwd -P)
   root=$(repo_root "$worktree")
   branch=$(git -C "$worktree" rev-parse --abbrev-ref HEAD)
-  run_detached "$root" "$(log_file "$root" "$(basename "$worktree")" teardown)" \
+  run_detached "$root" "$(log_file "$root" "$(worktree_name "$root" "$worktree")" teardown)" \
     bash "${BASH_SOURCE[0]}" finish-removal "$teardown" "$root" "$worktree" "$branch"
 }
 
@@ -50,7 +51,7 @@ finish_removal() {
   is_own_branch "$branch" && commits=$(unique_commits "$root" "$branch")
 
   if [[ -n $teardown ]]; then
-    (cd "$worktree" && bash -c "$teardown") || echo "teardown exited $?"
+    run_script "$root" "$worktree" "$teardown" || echo "teardown exited $?"
   fi
 
   if ((dirty == 0)); then
@@ -98,7 +99,21 @@ log_file() {
 run_detached() {
   local cwd=$1 log=$2
   shift 2
-  (cd "$cwd" && nohup "$@" >"$log" 2>&1 </dev/null &)
+  (cd "$cwd" && trap '' HUP && "$@" >"$log" 2>&1 </dev/null &)
+}
+
+worktree_name() {
+  local root=$1 worktree=$2
+  echo "${worktree#"$root/$WORKTREES_DIR/"}"
+}
+
+run_script() {
+  local root=$1 worktree=$2 script=$3
+  (
+    cd "$worktree"
+    WORKTREE_ROOT_PATH=$root WORKTREE_PATH=$worktree WORKTREE_NAME=$(worktree_name "$root" "$worktree") \
+      bash -c "$script"
+  )
 }
 
 is_own_branch() {
