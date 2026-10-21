@@ -10,7 +10,6 @@ const PANE_TITLE = 'Setup worktrees'
 const SETTINGS_FILE = '.claude/settings.local.json'
 const BUNDLED_HOOK = 'scripts/hook.sh'
 const SCRIPT_ROWS = 6
-const TOOLTIP_OFFSET = 2
 
 const root = atom({ plugin: 'setup-worktrees', key: 'root' } as const, '')
 const draft = atom({ plugin: 'setup-worktrees', key: 'draft' } as const, EMPTY_SCRIPTS)
@@ -72,30 +71,34 @@ export const register: Register = on => {
 
     return (
       <Box flexDirection="column" alignItems="stretch" gap="lg" padding="md">
-        <Box flexDirection="row" flexWrap="wrap" gap="xs">
-          {SCRIPT_VARIABLES.map(({ name, meaning }) => (
-            <Box key={`chip-${name}`} position="relative">
+        <Box flexDirection="column" gap="xs">
+          <Box flexDirection="row" flexWrap="wrap" gap="xs">
+            {SCRIPT_VARIABLES.map(({ name }) => (
               <Button
                 key={`variable-${name}`}
                 variant="secondary"
+                hover={{ scope: `variable-${name}` }}
                 onPress={press => copy(`$${name}`, press.surface)}
               >
                 <Text mono>${name}</Text>
               </Button>
+            ))}
+          </Box>
+          <Box position="relative" minHeight={1}>
+            {SCRIPT_VARIABLES.map(({ name, meaning }) => (
               <Box
+                key={`meaning-${name}`}
                 position="absolute"
-                top={TOOLTIP_OFFSET}
+                top={0}
                 left={0}
+                right={0}
                 display="none"
-                hover={{ display: 'flex' }}
-                paddingX="sm"
-                paddingY="xs"
-                backgroundColor="text"
+                hover={{ scope: `variable-${name}`, display: 'flex' }}
               >
-                <Text size="caption" color="inverseText" wrap="truncate-end">{meaning}</Text>
+                <Text size="caption" dimColor>{meaning}</Text>
               </Box>
-            </Box>
-          ))}
+            ))}
+          </Box>
         </Box>
         {SCRIPT_FIELDS.map(({ kind, title, placeholder }) => (
           <Box key={kind} flexDirection="column" alignItems="stretch" gap="xs">
