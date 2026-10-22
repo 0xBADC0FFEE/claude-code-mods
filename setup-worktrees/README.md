@@ -14,6 +14,13 @@ scripts inlined, to the repository's `.claude/settings.local.json`: each
 developer keeps their own, and nothing is committed. Logs go to
 `.worktrees/.logs/`.
 
+While setup runs, the worktree's session shows a spinner and the current step
+above the prompt, then a toast when it succeeds. A failure stays there, with
+its exit code and step, until dismissed. **Log** opens the whole log in a pane.
+
+A step is a line the setup script prints, `::step::` then its name; other
+output only reaches the log.
+
 Both scripts run inside the worktree with these variables set:
 
 | variable | value |
@@ -23,9 +30,13 @@ Both scripts run inside the worktree with these variables set:
 | `WORKTREE_NAME` | `<name>` |
 
 ```sh
+echo "::step::Copying .env"
 cp "$WORKTREE_ROOT_PATH/.env" .
+echo "::step::Installing dependencies"
 npm ci
 ```
+
+A script must not send itself to the background: setup is over when it exits.
 
 When a session is removed, a worktree with no uncommitted changes is deleted,
 and so is its branch when it holds no commits found on no other branch.

@@ -1,6 +1,6 @@
 {
   "name": "setup-worktrees",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Puts session worktrees in <repo>/.worktrees/ and runs your own setup/teardown scripts there, kept in .claude/settings.local.json. Needs function hooks (early access).",
   "author": {
     "name": "0xBADC0FFEE"

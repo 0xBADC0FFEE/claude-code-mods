@@ -31,7 +31,11 @@ create() {
   exclude_worktrees_dir "$root"
   git -C "$root" worktree add -q -b "$BRANCH_PREFIX$name" "$worktree" HEAD >&2
   if [[ -n $setup ]]; then
-    run_detached "$worktree" "$(log_file "$root" "$name" setup)" run_script "$root" "$worktree" "$setup"
+    local log exit_file
+    log=$(log_file "$root" "$name" setup)
+    exit_file=$(exit_code_file "$log")
+    rm -f "$exit_file"
+    run_detached "$worktree" "$log" record_exit_code "$exit_file" run_script "$root" "$worktree" "$setup"
   fi
   echo "$worktree"
 }
@@ -92,6 +96,19 @@ log_file() {
   local root=$1 name=$2 kind=$3
   mkdir -p "$root/$LOGS_DIR"
   echo "$root/$LOGS_DIR/${name//\//_}.$kind.log"
+}
+
+exit_code_file() {
+  echo "${1%.log}.exit"
+}
+
+record_exit_code() {
+  local exit_file=$1 code=0
+  shift
+  "$@" || code=$?
+  # The mod polls this file: a rename never shows it half-written.
+  echo "$code" >"$exit_file.tmp"
+  mv "$exit_file.tmp" "$exit_file"
 }
 
 # The hook's caller waits until every inherited stdio pipe closes, so the
