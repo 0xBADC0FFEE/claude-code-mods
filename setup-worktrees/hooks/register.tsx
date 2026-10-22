@@ -3,6 +3,7 @@ import type { EngineInterface, Register, UiPressArgument } from 'claude-code'
 
 import type { ScriptKind, WorktreeScripts } from '../types'
 import { EMPTY_SCRIPTS, INSTALLED_HOOK_PATH, readWorktreeScripts, withWorktreeHooks } from './settings'
+import { registerSetupProgress, watchSetup } from './setup-progress'
 
 const COMMAND = 'setup-worktrees'
 const PANE = 'setup-worktrees'
@@ -30,13 +31,18 @@ const SCRIPT_VARIABLES: readonly ScriptVariable[] = [
   { name: 'WORKTREE_NAME', meaning: 'Folder name under .worktrees/. Click to copy' },
 ]
 
-export const register: Register = on => {
+export const register: Register = (on, options) => {
+  registerSetupProgress(on, options)
+
   on('session.start', async ($, e, next) => {
     await $.command.register({
       name: COMMAND,
       description: 'Edit this repo\'s local worktree setup/teardown scripts',
     })
-    return next(e)
+    await refreshInstalledHook($)
+    const started = await next(e)
+    void watchSetup($, e.cwd)
+    return started
   })
 
   on('command.run', { command: COMMAND }, async $ => {
@@ -145,9 +151,20 @@ async function saveScripts($: EngineInterface, repo: string, scripts: WorktreeSc
 }
 
 async function installHook($: EngineInterface): Promise<void> {
+  await $.fs.write(await installedHookPath($), await $.fs.read(`${$.plugin.root}/${BUNDLED_HOOK}`))
+}
+
+async function refreshInstalledHook($: EngineInterface): Promise<void> {
+  const installed = await installedHookPath($)
+  if (!(await $.fs.exists(installed))) return
+  const bundled = await $.fs.read(`${$.plugin.root}/${BUNDLED_HOOK}`)
+  if ((await $.fs.read(installed)) !== bundled) await $.fs.write(installed, bundled)
+}
+
+async function installedHookPath($: EngineInterface): Promise<string> {
   const home = await $.env.get('HOME')
   if (!home) throw new Error('HOME is not set')
-  await $.fs.write(`${home}/${INSTALLED_HOOK_PATH}`, await $.fs.read(`${$.plugin.root}/${BUNDLED_HOOK}`))
+  return `${home}/${INSTALLED_HOOK_PATH}`
 }
 
 async function readSettings($: EngineInterface, repo: string): Promise<Record<string, unknown>> {
